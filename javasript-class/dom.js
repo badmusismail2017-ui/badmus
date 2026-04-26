@@ -1,4 +1,4 @@
-window.addEventListener('dblclick', (event) => {
+/*window.addEventListener('dblclick', (event) => {
   const myLink = document.querySelector('a');
 
   if (myLink) {
@@ -49,7 +49,58 @@ window.addEventListener('cut', (event) => {
   console.log(mrIsmail);
 });
 
+url = "https://api.open-meteo.com/v1/forecast"
+async function getData() {
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+    const myLink = document.querySelector('a')
 
- 
+    if (myLink) {
+      console.log("Link found")
+      
+    }
+    return data;
+  } catch (err) {
+    console.error('Error:', err.message);
+  }
+}
+myData = getData();
+console.log(myData)
+*/
+
+ const url = "https://api.open-meteo.com/v1/forecast?latitude=6.5244&longitude=3.3792&current=temperature_2m,weather_code";
+
+async function getData() {
+  try {
+    const response = await fetch(url);
+    
+    if (!response.ok) { // check if request actually worked
+      throw new Error(`HTTP error: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    const myLink = document.querySelector('a'); 
+
+    var temperature = data.current.latitude; // extract the temperature from the data
+    console
+    
+    if (myLink) {
+      console.log("Link found");
+    }
+    
+    return data;
+  } catch (err) {
+    console.error('Error:', err.message);
+    return null; // return something so .then doesn't get undefined
+  }
+}
+getData().then(myData => {
+  console.log(myData); // now this is the actual data
+});
+
+// OR if you're inside another async function:
+// const myData = await getData();
+// console.log(myData);
 
 

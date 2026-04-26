@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YouTube Clone Pro</title>
+  <style>
+    :root {
+      --bg: #0f0f0f;
+      --bg-secondary: #272727;
+      --bg-hover: #3d3d3d;
+      --text: #f1f1f1;
+      --text-secondary: #aaa;
+      --border: #303030;
+      --red: #ff0000;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: Roboto, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 16px; height: 56px; background: var(--bg);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .left-section { display: flex; align-items: center; gap: 16px; }
+    .icon-btn {
+      width: 40px; height: 40px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; border: none; background: none; color: var(--text);
+    }
+    .icon-btn:hover { background: var(--bg-hover); }
+    .logo { display: flex; align-items: center; gap: 4px; cursor: pointer; }
+    .logo svg { width: 90px; height: 20px; }
+    .search-section {
+      display: flex; align-items: center; flex: 0 1 732px; margin: 0 40px;
+    }
+    .search-bar {
+      display: flex; flex: 1; height: 40px;
+      border: 1px solid var(--border); border-radius: 40px 0 0 40px;
+      overflow: hidden;
+    }
+    .search-bar input {
+      flex: 1; padding: 0 16px; background: #121212;
+      border: none; color: var(--text); font-size: 16px; outline: none;
+    }
+    .search-btn {
+      width: 64px; background: var(--bg-secondary);
+      border: 1px solid var(--border); border-left: none;
+      border-radius: 0 40px 40px 0; cursor: pointer;
+    }
+    .right-section { display: flex; align-items: center; gap: 8px; }
+    .container { display: flex; }
+    .sidebar {
+      width: 240px; padding: 12px; overflow-y: auto;
+      height: calc(100vh - 56px); position: sticky; top: 56px;
+    }
+    .sidebar-item {
+      display: flex; align-items: center; gap: 24px;
+      padding: 10px 12px; border-radius: 10px; cursor: pointer; font-size: 14px;
+    }
+    .sidebar-item:hover { background: var(--bg-hover); }
+    .sidebar-item.active { background: var(--bg-hover); font-weight: 500; }
+    .sidebar hr { border: none; border-top: 1px solid var(--border); margin: 12px 0; }
+    .content { flex: 1; padding: 24px; overflow-x: hidden; }
+    .chips {
+      display: flex; gap: 12px; margin-bottom: 24px; overflow-x: auto; scrollbar-width: none;
+    }
+    .chip {
+      padding: 8px 12px; background: var(--bg-secondary);
+      border-radius: 8px; white-space: nowrap; font-size: 14px;
+      cursor: pointer; border: none; color: var(--text);
+    }
+    .chip.active { background: var(--text); color: var(--bg); }
+    .chip:hover { background: var(--bg-hover); }
+    .player-section { display: none; margin-bottom: 24px; }
+    .player-section.active { display: block; }
+    .player-wrapper {
+      position: relative; padding-bottom: 56.25%; height: 0;
+      background: #000; border-radius: 12px; overflow: hidden;
+    }
+    .player-wrapper iframe {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;
+    }
+    .player-info { margin-top: 12px; }
+    .player-info h1 { font-size: 20px; font-weight: 600; margin-bottom: 8px; line-height: 1.4; }
+    .player-meta {
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 12px; margin-bottom: 12px;
+    }
+    .channel-row { display: flex; align-items: center; gap: 12px; cursor: pointer; }
+    .stats-row { display: flex; gap: 16px; color: var(--text-secondary); font-size: 14px; }
+    .close-player {
+      padding: 10px 16px; background: var(--bg-secondary);
+      border: none; border-radius: 18px; color: var(--text);
+      cursor: pointer; font-size: 14px; font-weight: 500;
+    }
+    .close-player:hover { background: var(--bg-hover); }
+    .comments-section { margin-top: 24px; }
+    .comments-section h3 { margin-bottom: 16px; font-size: 16px; }
+    .comment {
+      display: flex; gap: 12px; margin-bottom: 16px; font-size: 14px;
+    }
+    .comment-author { font-weight: 500; margin-bottom: 4px; }
+    .comment-text { color: var(--text-secondary); line-height: 1.4; }
+    .video-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px 16px;
+    }
+    .video-card { cursor: pointer; }
+    .thumbnail {
+      position: relative; border-radius: 12px; overflow: hidden;
+      aspect-ratio: 16/9; background: var(--bg-secondary); margin-bottom: 12px;
+    }
+    .thumbnail img { width: 100%; height: 100%; object-fit: cover; }
+    .video-info { display: flex; gap: 12px; }
+    .channel-icon {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--bg-secondary); flex-shrink: 0;
+    }
+    .video-details h3 {
+      font-size: 16px; font-weight: 500; line-height: 1.4;
+      margin-bottom: 4px; display: -webkit-box;
+      -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .video-details p { font-size: 14px; color: var(--text-secondary); line-height: 1.4; }
+    .loading { text-align: center; padding: 40px; color: var(--text-secondary); }
+    .load-more {
+      display: block; margin: 24px auto; padding: 10px 24px;
+      background: var(--bg-secondary); border: none; border-radius: 18px;
+      color: var(--text); cursor: pointer; font-size: 14px; font-weight: 500;
+    }
+    .load-more:hover { background: var(--bg-hover); }
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .search-section { margin: 0 16px; }
+      .video-grid { grid-template-columns: 1fr; }
+      .player-info h1 { font-size: 18px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="left-section">
+      <button class="icon-btn" onclick="toggleSidebar()">
+        <svg width="24" height="24" fill="currentColor"><path d="M21 6H3V5h18v1zm0 5H3v1h18v-1zm0 6H3v1h18v-1z"/></svg>
+      </button>
+      <div class="logo" onclick="loadTrending()">
+        <svg viewBox="0 0 90 20" fill="currentColor">
+          <path d="M27.9727 3.12324C27.6435 1.89323 26.6768 0.926623 25.4468 0.597366C23.2197 2.24288e-07 14.285 0 14.285 0C14.285 0 5.35042 2.24288e-07 3.12323 0.597366C1.89323 0.926623 0.926623 1.89323 0.597366 3.12324C2.24288e-07 5.35042 0 10C0 10 2.24288e-07 14.6496 0.597366 16.8768C0.926623 18.1068 1.89323 19.0734 3.12323 19.4026C5.35042 20 14.285 20 14.285 20C14.285 20 23.2197 20 25.4468 19.4026C26.6768 19.0734 27.6435 18.1068 27.9727 16.8768C28.5701 14.6496 28.5701 10 28.5701 10C28.5701 10 28.5677 5.35042 27.9727 3.12324Z" fill="#FF0000"/>
+          <path d="M11.4253 14.2854L18.8477 10.0004L11.4253 5.71533V14.2854Z" fill="white"/>
+          <path d="M34.6024 13.0036L31.3945 1.41846H34.1932L35.6763 6.7841C35.9823 7.93339 36.2171 8.96371 36.3797 9.8855H36.4188C36.567 8.96371 36.7862 7.93339 37.0922 6.7841L38.5753 1.41846H41.374L38.1931 13.0036V18.3808H35.4945V13.0036H34.6024Z" fill="currentColor"/>
+          <path d="M41.8 18.3808V1.41846H44.3489L49.7091 10.2395C50.0781 10.8019 50.4052 11.3379 50.691 11.8473H50.7693C50.8839 11.2367 51.1259 10.5213 51.495 9.70098L56.4639 1.41846H58.9088V18.3808H56.6203V7.57438C56.6203 6.77518 56.6301 6.04468 56.6495 5.38288H56.5903C56.4523 6.21023 56.2016 7.09432 55.8383 8.03516L51.0798 18.3808H48.7112L43.9135 8.03516C43.5502 7.09432 43.2996 6.21023 43.1616 5.38288H43.1024C43.122 6.04468 43.1318 6.77518 43.1318 7.57438V18.3808H41.8Z" fill="currentColor"/>
+        </svg>
+      </div>
+    <div class="search-section">
+      <div class="search-bar">
+        <input type="text" id="searchInput" placeholder="Search" onkeypress="if(event.key==='Enter') search()">
+      </div>
+      <button class="search-btn icon-btn" onclick="search()">
+        <svg width="24" height="24" fill="currentColor"><path d="M16.296 16.996a8 8 0 11.707-.707l3.104 3.103-.707.707-3.104-3.103zM18 11a7 7 0 00-14 0 7 7 0 1014 0z"/></svg>
+      </button>
+    </div>
+    <div class="right-section">
+      <img src="https://i.pravatar.cc/32" style="width:32px;height:32px;border-radius:50%;cursor:pointer;">
+    </div>
+  </header>
+
+  <div class="container">
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-item active" onclick="loadTrending()">
+        <svg width="24" height="24" fill="currentColor"><path d="M4 10v11h6v-5h4v5h6V10L12 3z"/></svg>
+        Home
+      </div>
+      <div class="sidebar-item" onclick="search('music')">
+        <svg width="24" height="24" fill="currentColor"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+        Music
+      </div>
+      <div class="sidebar-item" onclick="search('gaming')">
+        <svg width="24" height="24" fill="currentColor"><path d="M7.58 4.08L6.15 2.65C3.75 4.48 2.17 7.3 2.03 10.5h2c.15-2.65 1.51-4.97 3.55-6.42zm12.84 0c2.04 1.45 3.4 3.77 3.55 6.42h2c-.14-3.2-1.72-6.02-4.12-7.85l-1.43 1.43zM18 11c0-1.66-1.34-3-3-3s-3 1.34-3 3 1.34 3 3 3 3-1.34 3-3zm-6.5 0c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5-1.5-.67-1.5-1.5zM19 12c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3zm-1.5 3c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5-1.5-.67-1.5.67-1.5 1.5-1.5z"/></svg>
+        Gaming
+      </div>
+    </nav>
+
+    <main class="content">
+      <div class="player-section" id="playerSection">
+        <div class="player-wrapper">
+          <iframe id="videoPlayer" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
+        </div>
+        <div class="player-info">
+          <h1 id="playerTitle"></h1>
+          <div class="player-meta">
+            <div class="channel-row" onclick="loadChannel(currentChannelId)">
+              <div class="channel-icon"></div>
+              <div>
+                <div id="playerChannel" style="font-weight:500"></div>
+                <div class="stats-row" id="playerStats"></div>
+              </div>
+            </div>
+            <button class="close-player" onclick="closePlayer()">Close Player</button>
+          </div>
+        <div class="comments-section">
+          <h3 id="commentCount">Comments</h3>
+          <div id="commentsList"></div>
+        </div>
+      </div>
+
+      <div class="chips">
+        <button class="chip active" onclick="loadTrending()">All</button>
+        <button class="chip" onclick="search('music')">Music</button>
+        <button class="chip" onclick="search('gaming')">Gaming</button>
+        <button class="chip" onclick="search('news')">News</button>
+        <button class="chip" onclick="search('live')">Live</button>
+        <button class="chip" onclick="search('nigeria')">Nigeria</button>
+      </div>
+      <div id="videoGrid" class="video-grid">
+        <div class="loading">Loading trending videos...</div>
+      </div>
+      <button class="load-more" id="loadMoreBtn" style="display:none" onclick="loadMore()">Load More</button>
+    </main>
+  </div>
+
+  <script>
+    // PASTE YOUR YOUTUBE API KEY HERE
+    const API_KEY = 'AIzaSyDzPxmCyG0swKaMlPIviQMNQSVVaB7Cw7Q';
+    console.log(API_KEY);
+    const BASE_URL = 'https://www.googleapis.com/youtube/v3';
+    
+    let sidebarOpen = true;
+    let nextPageToken = null;
+    let currentQuery = null;
+    let currentChannelId = null;
+
+    function toggleSidebar() {
+      sidebarOpen = !sidebarOpen;
+      document.getElementById('sidebar').style.display = sidebarOpen ? 'block' : 'none';
+    }
+
+    function formatCount(num) {
+      if (num >= 1000000) return (num/1000000).toFixed(1) + 'M';
+      if (num >= 1000) return (num/1000).toFixed(1) + 'K';
+      return num.toString();
+    }
+
+    async function playVideo(videoId, title, channel, channelId) {
+      currentChannelId = channelId;
+      document.getElementById('playerSection').classList.add('active');
+      document.getElementById('videoPlayer').src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+      document.getElementById('playerTitle').textContent = title;
+      document.getElementById('playerChannel').textContent = channel;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      
+      // Fetch stats and comments
+      const [statsRes, commentsRes] = await Promise.all([
+        fetch(`${BASE_URL}/videos?part=statistics&id=${videoId}&key=${API_KEY}`),
+        fetch(`${BASE_URL}/commentThreads?part=snippet&videoId=${videoId}&maxResults=10&key=${API_KEY}`)
+      ]);
+      
+      const statsData = await statsRes.json();
+      const stats = statsData.items[0].statistics;
+      document.getElementById('playerStats').textContent = 
+        `${formatCount(stats.viewCount)} views • ${formatCount(stats.likeCount)} likes`;
+      
+      const commentsData = await commentsRes.json();
+      if (commentsData.items) {
+        document.getElementById('commentCount').textContent = `${formatCount(stats.commentCount)} Comments`;
+        document.getElementById('commentsList').innerHTML = commentsData.items.map(item => {
+          const c = item.snippet.topLevelComment.snippet;
+          return `
+            <div class="comment">
+              <div class="channel-icon"></div>
+              <div>
+                <div class="comment-author">${c.authorDisplayName}</div>
+                <div class="comment-text">${c.textDisplay}</div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+    }
+
+    function closePlayer() {
+      document.getElementById('playerSection').classList.remove('active');
+      document.getElementById('videoPlayer').src = '';
+    }
+
+    async function fetchVideos(endpoint, append = false) {
+      if (API_KEY === 'YOUR_API_KEY_HERE') {
+        document.getElementById('videoGrid').innerHTML = '<div class="loading">Add your YouTube API key in the code to load videos</div>';
+        return;
+      }
+      
+      if (!append) document.getElementById('videoGrid').innerHTML = '<div class="loading">Loading...</div>';
+      
+      try {
+        const res = await fetch(`${BASE_URL}/${endpoint}&key=${API_KEY}`);
+        if (!res.ok) throw new Error('API failed');
+        const data = await res.json();
+        nextPageToken = data.nextPageToken || null;
+        document.getElementById('loadMoreBtn').style.display = nextPageToken ? 'block' : 'none';
+        displayVideos(data.items, append);
+      } catch (err) {
+        document.getElementById('videoGrid').innerHTML = `<div class="loading">Error: ${err.message}</div>`;
+      }
+    }
+
+    function displayVideos(videos, append) {
+      if (!videos || videos.length === 0) {
+        document.getElementById('videoGrid').innerHTML = '<div class="loading">No videos found</div>';
+        return;
+      }
+      
+      const html = videos.map(video => {
+        const id = video.id.videoId || video.id;
+        const snip = video.snippet;
+        const safeTitle = snip.title.replace(/'/g, "\\'");
+        const safeChannel = snip.channelTitle.replace(/'/g, "\\'");
+        return `
+          <div class="video-card" onclick="playVideo('${id}', '${safeTitle}', '${safeChannel}', '${snip.channelId}')">
+            <div class="thumbnail">
+              <img src="${snip.thumbnails.medium.url}" alt="${snip.title}">
+            </div>
+            <div class="video-info">
+              <div class="channel-icon"></div>
+              <div class="video-details">
+                <h3>${snip.title}</h3>
+                <p>${snip.channelTitle}</p>
+                <p>${new Date(snip.publishedAt).toLocaleDateString()}</p>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+      
+      if (append) {
+        document.getElementById('videoGrid').innerHTML += html;
+      } else {
+        document.getElementById('videoGrid').innerHTML = html;
+      }
+    }
+
+    function loadTrending() {
+      closePlayer();
+      currentQuery = 'trending';
+      document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+      event?.target.closest('.sidebar-item')?.classList.add('active');
+      fetchVideos('videos?part=snippet&chart=mostPopular&regionCode=NG&maxResults=24');
+    }
+
+    function search(query) {
+      if (!query) query = document.getElementById('searchInput').value;
+      if (!query) return;
+      
+      closePlayer();
+      currentQuery = query;
+      document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+      event?.target.classList.add('active');
+      
+      fetchVideos(`search?part=snippet&q=${encodeURIComponent(query)}&type=video&maxResults=24`);
+    }
+
+    function loadChannel(channelId) {
+      if (!channelId) return;
+      closePlayer();
+      currentQuery = `channel:${channelId}`;
+      fetchVideos(`search?part=snippet&channelId=${channelId}&type=video&maxResults=24&order=date`);
+    }
+
+    function loadMore() {
+      if (!nextPageToken) return;
+      let endpoint;
+      if (currentQuery === 'trending') {
+        endpoint = `videos?part=snippet&chart=mostPopular&regionCode=NG&maxResults=24&pageToken=${nextPageToken}`;
+      } else if (currentQuery.startsWith('channel:')) {
+        const channelId = currentQuery.split(':')[1];
+        endpoint = `search?part=snippet&channelId=${channelId}&type=video&maxResults=24&order=date&pageToken=${nextPageToken}`;
+      } else {
+        endpoint = `search?part=snippet&q=${encodeURIComponent(currentQuery)}&type=video&maxResults=24&pageToken=${nextPageToken}`;
+      }
+      fetchVideos(endpoint, true);
+    }
+
+    loadTrending();
+  </script>
+</body>
+</html>

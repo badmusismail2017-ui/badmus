@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ultimate Weather Dashboard</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Segoe UI;}
+body{background:linear-gradient(135deg,#4facfe,#00f2fe);padding:20px;transition:0.3s;}
+body.dark{background:#1e1e2f;color:#fff;}
+
+h1{text-align:center;margin-bottom:20px;}
+
+.top-box{max-width:400px;margin:auto;background:#fff;padding:20px;border-radius:15px;text-align:center;}
+body.dark .top-box{background:#2b2b3c;}
+
+input,button{width:100%;padding:10px;margin-top:10px;border-radius:8px;border:none;}
+button{background:#4facfe;color:#fff;cursor:pointer;}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:15px;margin-top:20px;}
+.card{background:#fff;padding:15px;border-radius:15px;text-align:center;}
+body.dark .card{background:#2b2b3c;}
+
+.temp{font-size:22px;color:#4facfe;}
+.icon{font-size:28px;}
+
+.toggle{position:fixed;top:20px;right:20px;cursor:pointer;background:#fff;padding:10px;border-radius:50%;}
+
+.overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:#000;color:#fff;display:flex;justify-content:center;align-items:center;flex-direction:column;z-index:999;}
+
+</style>
+</head>
+<body>
+
+<div class="overlay" id="overlay">
+<h2>Allow Location</h2>
+<button onclick="requestLocation()">Enable</button>
+</div>
+
+<div class="toggle" onclick="toggleDark()">🌙</div>
+
+<h1>Ultimate Weather Dashboard In Nigeria🌍</h1>
+
+<div class="top-box">
+<input id="city" placeholder="Search city">
+<button onclick="getWeather()">Search</button>
+<div id="mainWeather"></div>
+</div>
+
+<div class="grid" id="statesWeather"></div>
+
+<script>
+
+const states=["Lagos","Abuja","Kano","Ibadan","Port Harcourt","Enugu","Kaduna","Jos","Maiduguri","Abeokuta","Akure","Owerri","Asaba","Uyo","Calabar","Yola","Bauchi","Lokoja","Ilorin","Makurdi","Minna","Lafia","Dutse","Gombe","Gusau","Damaturu","Jalingo","Sokoto","Abakaliki","Ado Ekiti","Osogbo","Warri","Onitsha","Benin City","Katsina","Birnin Kebbi"];
+
+function icon(code){if(code==0)return"☀️";if(code<4)return"⛅";if(code<50)return"🌫️";if(code<70)return"🌧️";return"🌩️";}
+
+function toggleDark(){document.body.classList.toggle("dark");}
+
+async function requestLocation(){
+navigator.geolocation.getCurrentPosition(pos=>{
+document.getElementById("overlay").style.display="none";
+loadCurrent(pos.coords.latitude,pos.coords.longitude);
+loadStates();
+});}
+
+async function loadCurrent(lat,lon){
+const r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
+const d=await r.json();
+
+document.getElementById("mainWeather").innerHTML=`
+<h3>Your Location</h3>
+<div class="icon">${icon(d.current_weather.weathercode)}</div>
+<div class="temp">${d.current_weather.temperature}°C</div>
+<p>${d.current_weather.windspeed} km/h</p>`;
+}
+
+async function getWeather(){
+const city=document.getElementById("city").value;
+const geo=await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${city}&count=1`);
+const g=await geo.json();
+if(!g.results)return;
+
+const {latitude,longitude,name}=g.results[0];
+const r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&daily=temperature_2m_max,temperature_2m_min&timezone=auto`);
+const d=await r.json();
+
+let forecast="";
+for(let i=0;i<5;i++){
+forecast+=`<p>Day ${i+1}: ${d.daily.temperature_2m_max[i]}° / ${d.daily.temperature_2m_min[i]}°</p>`;
+}
+
+document.getElementById("mainWeather").innerHTML=`
+<h3>${name}</h3>
+<div class="icon">${icon(d.current_weather.weathercode)}</div>
+<div class="temp">${d.current_weather.temperature}°C</div>
+${forecast}`;
+}
+
+async function loadStates(){
+const container=document.getElementById("statesWeather");
+const promises=states.map(async s=>{
+const geo=await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${s}&count=1`);
+const g=await geo.json();
+if(!g.results)return"";
+const {latitude,longitude,name}=g.results[0];
+const r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`);
+const d=await r.json();
+return `<div class="card"><h4>${name}</h4><div class="icon">${icon(d.current_weather.weathercode)}</div><div class="temp">${d.current_weather.temperature}°C</div></div>`;
+});
+
+container.innerHTML=(await Promise.all(promises)).join("");
+}
+
+</script>
+
+</body>
+</html>
